@@ -34,7 +34,7 @@ static UIColor* Gold() { return [UIColor colorWithRed:1 green:0.79 blue:0.33 alp
 static void RegisterSettings()
 {
     [NSUserDefaults.standardUserDefaults registerDefaults:@{
-        @"ios.resolution": @1, @"ios.widescreen": @NO, @"ios.frameRate": @60,
+        @"ios.resolution": @1, @"ios.widescreen": @YES, @"ios.frameRate": @120,
         @"ios.volume": @100, @"ios.touchControls": @YES, @"ios.touchOpacity": @0.55,
         @"ios.invertX": @NO, @"ios.invertY": @NO, @"ios.skipIntro": @YES, @"ios.skipMovies": @YES
     }];
@@ -45,7 +45,8 @@ void SMSApplyGameSettings(void)
     RegisterSettings();
     NSUserDefaults* defaults = NSUserDefaults.standardUserDefaults;
     NSInteger resolution = std::clamp<NSInteger>([defaults integerForKey:@"ios.resolution"], 1, 4);
-    NSInteger rate = [defaults integerForKey:@"ios.frameRate"] == 30 ? 30 : 60;
+    NSInteger asked = [defaults integerForKey:@"ios.frameRate"];  // blz: 120 on ProMotion phones (Markus 15 Nov)
+    NSInteger rate = asked == 30 ? 30 : asked == 60 ? 60 : 120;
     NSInteger volume = std::clamp<NSInteger>([defaults integerForKey:@"ios.volume"], 0, 100);
     NSDictionary<NSString*, NSString*>* environment = @{
         @"SMS_GX_SCALE": [@(resolution) stringValue],
@@ -105,7 +106,7 @@ void SMSApplyGameSettings(void)
     } else {
         NSInteger index = ((UISegmentedControl*)control).selectedSegmentIndex;
         if ([key isEqualToString:@"ios.resolution"]) [NSUserDefaults.standardUserDefaults setInteger:index + 1 forKey:key];
-        else if ([key isEqualToString:@"ios.frameRate"]) [NSUserDefaults.standardUserDefaults setInteger:index == 0 ? 30 : 60 forKey:key];
+        else if ([key isEqualToString:@"ios.frameRate"]) [NSUserDefaults.standardUserDefaults setInteger:index == 0 ? 30 : index == 1 ? 60 : 120 forKey:key];
         else [NSUserDefaults.standardUserDefaults setBool:index == 1 forKey:key];
     }
 }
@@ -124,7 +125,7 @@ void SMSApplyGameSettings(void)
     } else if (section == 1) {
         title = @[@"Frame rate", @"Invert camera X", @"Invert camera Y", @"Skip intro", @"Skip movies"][row];
         key = @[@"ios.frameRate", @"ios.invertX", @"ios.invertY", @"ios.skipIntro", @"ios.skipMovies"][row];
-        if (row == 0) choices = @[@"30", @"60"];
+        if (row == 0) choices = @[@"30", @"60", @"120"];
     } else if (section == 2) {
         title = row == 0 ? @"Touch screen controls" : @"Touch opacity";
         key = row == 0 ? @"ios.touchControls" : @"ios.touchOpacity";
@@ -139,7 +140,7 @@ void SMSApplyGameSettings(void)
     if (choices) {
         UISegmentedControl* segments = [[UISegmentedControl alloc] initWithItems:choices];
         segments.selectedSegmentIndex = [key isEqualToString:@"ios.resolution"] ? [defaults integerForKey:key] - 1
-            : [key isEqualToString:@"ios.frameRate"] ? ([defaults integerForKey:key] == 30 ? 0 : 1) : [defaults boolForKey:key];
+            : [key isEqualToString:@"ios.frameRate"] ? ([defaults integerForKey:key] == 30 ? 0 : [defaults integerForKey:key] == 60 ? 1 : 2) : [defaults boolForKey:key];
         segments.frame = CGRectMake(0, 0, choices.count * 48, 32);
         [segments addTarget:self action:@selector(changed:) forControlEvents:UIControlEventValueChanged];
         input = segments;
