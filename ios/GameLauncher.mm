@@ -338,7 +338,11 @@ void SMSPresentGameLauncher(void)
 {
     RegisterSettings();
     [NSFileManager.defaultManager removeItemAtURL:ImportStagingURL() error:nil];
-    if (const char* automated = getenv("SMS_IOS_AUTOLAUNCH")) {
+    // blz (Markus 15 Nov): like a retail game - a disc already in place starts the game, no launcher.
+    // SMS_IOS_AUTOLAUNCH=0 brings the launcher back.
+    const char* automated = getenv("SMS_IOS_AUTOLAUNCH");
+    if (!automated) automated = "1";
+    {
         if (!strcmp(automated, "1")) {
             try { sms::inspectDiscImage(SMSGameDiscURL().fileSystemRepresentation); SMSApplyGameSettings(); return; }
             catch (const std::exception&) {}
