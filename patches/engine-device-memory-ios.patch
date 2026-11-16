@@ -6,7 +6,7 @@ diff --git a/src/port_include/dolphin/types.h b/src/port_include/dolphin/types.h
  #if defined(__APPLE__) && defined(__aarch64__)
  #define PORT_GAME_LO 0x100000000ull
 +#ifdef SMS_IOS_DEVICE
-+#define PORT_GAME_HI 0x7000000000ull
++#define PORT_GAME_HI 0xD00000000ull
 +#else
  #define PORT_GAME_HI 0x10000000000ull
 +#endif
@@ -21,7 +21,7 @@ diff --git a/tools/gameptr/GamePtrPass.cpp b/tools/gameptr/GamePtrPass.cpp
  
  constexpr uint64_t kLo = 0x100000000ull;  // PORT_GAME_LO
 +#ifdef SMS_IOS_DEVICE
-+constexpr uint64_t kHi = 0x7000000000ull;
++constexpr uint64_t kHi = 0xD00000000ull;
 +#else
  constexpr uint64_t kHi = 0x10000000000ull;  // PORT_GAME_HI
 +#endif

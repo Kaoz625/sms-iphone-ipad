@@ -35,7 +35,7 @@ The device app is `build/engine-device/SunshineGame.app`. The private IPA and ha
 
 ## Physical-device memory windows
 
-The device build defines `SMS_IOS_DEVICE` in both the engine and its host-built LLVM pointer pass. Its MEM1 base is `0x7080000000`, while the executable/low-pointer window remains above `0x100000000`. Simulator and desktop pointer bases are unchanged. These must agree at compile time: changing only the runtime allocation would leave generated game pointers pointing elsewhere.
+The device build defines `SMS_IOS_DEVICE` in both the engine and its host-built LLVM pointer pass. Its MEM1 base is `0xD80000000` (PORT_GAME_HI `0xD00000000`; iOS 26.1 ends the app address space at `0x7000000000`, so the earlier `0x7080000000` cannot map there), while the executable/low-pointer window remains above `0x100000000`. Simulator and desktop pointer bases are unchanged. These must agree at compile time: changing only the runtime allocation would leave generated game pointers pointing elsewhere.
 
 The original signed build exited on Play because the desktop MEM1 address `0x10080000000` could not be mapped on the tested iPhone 15 Pro. A separate signed on-device probe verified a 64 MiB exact mapping, endpoint reads/writes, and non-overwriting Mach allocation at `0x7080000000` without additional entitlements. This establishes that device's reservation capability, not compatibility with every iOS version/device or full-game correctness. The patched runtime reports this as an iOS memory-reservation failure rather than suggesting a desktop launcher setting.
 
